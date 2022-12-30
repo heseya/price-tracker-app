@@ -1,0 +1,12 @@
+{
+  "preset": "symfony",
+  "rules": {
+    "strict_param": true,
+    "void_return": true,
+    "use_arrow_functions": true,
+    "strict_comparison": true,
+    "declare_strict_types": true,
+    "dir_constant": true,
+    "get_class_to_class_keyword": true
+  }
+}

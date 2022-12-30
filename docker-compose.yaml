@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: ./.docker
+    restart: unless-stopped
+    volumes:
+    - .:/usr/src/app
+    command:
+    - bash
+    - -c
+    - |
+      chmod -R 777 *
+      exec apache2-foreground
+
+  mysql_service:
+    image: mariadb:10.5
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: price-tracker
+    ports:
+      - ${DB_PORT:-3306}:3306
+
+  nginx:
+    image: nginx
+    restart: unless-stopped
+    volumes:
+      - ./.docker/nginx:/etc/nginx/templates
+    ports:
+      - ${DOCKER_PORT:-80}:80
+
+  adminer:
+    image: adminer
+    restart: unless-stopped
+    environment:
+      - ADMINER_DEFAULT_SERVER=mysql_service
