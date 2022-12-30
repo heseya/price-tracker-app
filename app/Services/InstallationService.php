@@ -53,8 +53,6 @@ final class InstallationService implements InstallationServiceContract
             'integration_token' => $integrationToken,
             'refresh_token' => $refreshToken,
             'uninstall_token' => $uninstallToken,
-            'auth_token' => Str::random(64),
-            'furgonetka_token' => Str::random(32),
         ]);
 
         return $uninstallToken;
