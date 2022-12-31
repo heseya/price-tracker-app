@@ -44,16 +44,12 @@ final class InstallationService implements InstallationServiceContract
             throw new \Exception('App doesn\'t have all required permissions');
         }
 
-        do {
-            $uninstallToken = Str::random(128);
-        } while (Api::query()->where('uninstall_token', $uninstallToken)->exists());
-
         $api = Api::query()->create([
             'url' => $storeUrl,
             'version' => $apiVersion,
             'integration_token' => $integrationToken,
             'refresh_token' => $refreshToken,
-            'uninstall_token' => $uninstallToken,
+            'uninstall_token' => $uninstallToken = Str::random(128),
             'webhook_secret' => Str::random(32),
         ]);
 
@@ -83,7 +79,7 @@ final class InstallationService implements InstallationServiceContract
 
         if ($response->failed()) {
             $this->uninstall($api->uninstall_token);
-            throw new \Exception('Failed to create webhook');
+            $response->throw();
         }
     }
 }
