@@ -8,6 +8,9 @@ return [
         'products.show',
         'products.show_details',
         'products.show_hidden',
+        'webhooks.show',
+        'webhooks.add',
+        'webhooks.edit',
     ],
 
     'internal' => [

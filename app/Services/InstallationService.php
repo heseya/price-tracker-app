@@ -71,7 +71,7 @@ final class InstallationService implements InstallationServiceContract
 
     private function createWebhook(Api $api): void
     {
-        Http::withToken($api->integration_token)
+        $response = Http::withToken($api->integration_token)
             ->post("$api->url/webhooks", [
                 'name' => 'Price Checker Webhook',
                 'url' => URL::to('/webhooks'),
@@ -80,5 +80,10 @@ final class InstallationService implements InstallationServiceContract
                 'with_hidden' => true,
                 'events' => ['ProductPriceUpdated'],
             ]);
+
+        if ($response->failed()) {
+            $this->uninstall($api->uninstall_token);
+            throw new \Exception('Failed to create webhook');
+        }
     }
 }
