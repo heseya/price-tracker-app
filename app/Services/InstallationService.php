@@ -71,13 +71,14 @@ final class InstallationService implements InstallationServiceContract
 
     private function createWebhook(Api $api): void
     {
-        Http::post("$api->url/webhooks", [
-            'name' => 'Price Checker Webhook',
-            'url' => URL::to('/webhooks'),
-            'secret' => $api->webhook_secret,
-            'with_issuer' => false,
-            'with_hidden' => true,
-            'events' => ['ProductPriceUpdated'],
-        ]);
+        Http::withToken($api->integration_token)
+            ->post("$api->url/webhooks", [
+                'name' => 'Price Checker Webhook',
+                'url' => URL::to('/webhooks'),
+                'secret' => $api->webhook_secret,
+                'with_issuer' => false,
+                'with_hidden' => true,
+                'events' => ['ProductPriceUpdated'],
+            ]);
     }
 }
