@@ -19,3 +19,4 @@ Route::post('/config', [ConfigController::class, 'show'])
     ->middleware('can:configure');
 
 Route::get('/products/{product_id}', [ProductController::class, 'show']);
+Route::post('/webhooks', [ProductController::class, 'update']);

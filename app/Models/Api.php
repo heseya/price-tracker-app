@@ -17,7 +17,6 @@ class Api extends Model
         'integration_token',
         'refresh_token',
         'uninstall_token',
-        'auth_token',
-        'furgonetka_token',
+        'webhook_secret',
     ];
 }

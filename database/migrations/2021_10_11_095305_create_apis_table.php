@@ -19,13 +19,15 @@ return new class() extends Migration {
             $table->string('integration_token', 500);
             $table->string('refresh_token', 500);
             $table->string('uninstall_token', 500)->unique();
+            $table->string('webhook_secret', 32)->unique();
             $table->timestamps();
         });
 
         Schema::create('product_prices', function (Blueprint $table): void {
             $table->id();
             $table->uuid('product_id');
-            $table->decimal('price', 16, 4);
+            $table->decimal('price_min', 16, 4);
+            $table->decimal('price_max', 16, 4);
             $table->dateTime('changed_at');
         });
     }

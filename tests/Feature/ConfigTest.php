@@ -30,6 +30,7 @@ class ConfigTest extends TestCase
             'integration_token' => Str::random(),
             'refresh_token' => Str::random(),
             'uninstall_token' => Str::random(),
+            'webhook_secret' => Str::random(32),
         ]);
 
         $this->user = new StoreUser(Str::uuid()->toString(), 'User', '', ['configure']);

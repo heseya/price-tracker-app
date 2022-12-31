@@ -15,12 +15,14 @@ class ProductPrice extends Model
 
     protected $fillable = [
         'product_id',
-        'price',
+        'price_min',
+        'price_max',
         'changed_at',
     ];
 
     protected $casts = [
-        'price' => 'float',
+        'price_min' => 'float',
+        'price_max' => 'float',
     ];
 
     protected $dates = [

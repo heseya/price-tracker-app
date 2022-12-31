@@ -7,6 +7,7 @@ return [
         'auth.check_identity',
         'products.show',
         'products.show_details',
+        'products.show_hidden',
     ],
 
     'internal' => [

@@ -9,6 +9,7 @@ use App\Services\Contracts\InstallationServiceContract;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -47,13 +48,16 @@ final class InstallationService implements InstallationServiceContract
             $uninstallToken = Str::random(128);
         } while (Api::query()->where('uninstall_token', $uninstallToken)->exists());
 
-        Api::query()->create([
+        $api = Api::query()->create([
             'url' => $storeUrl,
             'version' => $apiVersion,
             'integration_token' => $integrationToken,
             'refresh_token' => $refreshToken,
             'uninstall_token' => $uninstallToken,
+            'webhook_secret' => Str::random(32),
         ]);
+
+        $this->createWebhook($api);
 
         return $uninstallToken;
     }
@@ -63,5 +67,17 @@ final class InstallationService implements InstallationServiceContract
         Api::query()
             ->where('uninstall_token', $uninstallToken)
             ->delete();
+    }
+
+    private function createWebhook(Api $api): void
+    {
+        Http::post("$api->url/webhooks", [
+            'name' => 'Price Checker Webhook',
+            'url' => URL::to('/webhooks'),
+            'secret' => $api->webhook_secret,
+            'with_issuer' => false,
+            'with_hidden' => true,
+            'events' => ['ProductPriceUpdated'],
+        ]);
     }
 }

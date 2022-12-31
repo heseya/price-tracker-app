@@ -21,7 +21,8 @@ class ProductTest extends TestCase
         $this
             ->json('GET', '/products/'.self::PRODUCT_ID)
             ->assertJsonFragment([
-                'price' => null,
+                'price_min' => null,
+                'price_max' => null,
                 'changed_at' => null,
             ]);
     }
@@ -32,7 +33,8 @@ class ProductTest extends TestCase
         $this
             ->json('GET', '/products/'.self::PRODUCT_ID)
             ->assertJsonFragment([
-                'price' => null,
+                'price_min' => null,
+                'price_max' => null,
                 'changed_at' => null,
             ]);
     }
@@ -47,7 +49,8 @@ class ProductTest extends TestCase
         $this
             ->json('GET', '/products/'.self::PRODUCT_ID)
             ->assertJsonFragment([
-                'price' => 10.0,
+                'price_min' => 10.0,
+                'price_max' => 10.0,
             ]);
     }
 
@@ -55,7 +58,8 @@ class ProductTest extends TestCase
     {
         return ProductPrice::query()->create([
             'product_id' => $id,
-            'price' => $price,
+            'price_min' => $price,
+            'price_max' => $price,
             'changed_at' => $changed_at ?? Carbon::now(),
         ]);
     }
