@@ -35,7 +35,11 @@ readonly final class ProductService implements ProductServiceContract
             ->orderBy('price_min')
             ->first();
 
-        if (null === $lastPrice || $lastPrice->price_min !== $newPriceMin || $lastPrice->price_max !== $newPriceMax) {
+        if (
+            null === $lastPrice ||
+            round($lastPrice->price_min, 2) !== round($newPriceMin, 2) ||
+            round($lastPrice->price_max, 2) !== round($newPriceMax, 2)
+        ) {
             ProductPrice::query()->create([
                 'product_id' => $productId,
                 'price_min' => $newPriceMin,
