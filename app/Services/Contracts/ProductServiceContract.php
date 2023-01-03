@@ -16,4 +16,6 @@ interface ProductServiceContract
         float $newPriceMax,
         string $changedAt,
     ): void;
+
+    public function checkSignature(string $apiUrl, string $signature, mixed $payload): bool;
 }

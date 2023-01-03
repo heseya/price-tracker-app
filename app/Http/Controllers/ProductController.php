@@ -22,9 +22,7 @@ class ProductController extends Controller
 
     public function show(string $product_id): JsonResource
     {
-        $price = $this->productService->findCheapestPrice(
-            $product_id,
-        );
+        $price = $this->productService->findCheapestPrice($product_id);
 
         return ProductPriceResource::make($price);
     }
