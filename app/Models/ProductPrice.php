@@ -18,6 +18,7 @@ class ProductPrice extends Model
         'price_min',
         'price_max',
         'changed_at',
+        'currency',
     ];
 
     protected $casts = [

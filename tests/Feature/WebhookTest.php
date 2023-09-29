@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Models\Api;
 use App\Models\ProductPrice;
+use App\Services\Contracts\ProductServiceContract;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -56,6 +57,7 @@ class WebhookTest extends TestCase
             'price_min' => 10.0,
             'price_max' => 20.0,
             'changed_at' => $now,
+            'currency' => ProductServiceContract::DEFAULT_CURRENCY,
         ]);
     }
 

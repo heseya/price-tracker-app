@@ -10,9 +10,9 @@ use App\Services\Contracts\ProductServiceContract;
 
 readonly final class ProductService implements ProductServiceContract
 {
-    public function findCheapestPrice(string $productId): ?ProductPrice
+    public function findCheapestPrice(string $productId, string $currency = ProductServiceContract::DEFAULT_CURRENCY): ?ProductPrice
     {
-        $lastPrice = $this->getLastPrice($productId);
+        $lastPrice = $this->getLastPrice($productId, $currency);
 
         if (null === $lastPrice) {
             return null;
@@ -22,6 +22,7 @@ readonly final class ProductService implements ProductServiceContract
         $price = ProductPrice::query()
             ->where('product_id', $productId)
             ->where('id', '!=', $lastPrice->getKey())
+            ->where('currency', $currency)
             ->whereDate('changed_at', '>=', $lastPrice->changed_at->subDays(30)->startOfDay())
             ->orderBy('price_min')
             ->first();
@@ -34,8 +35,11 @@ readonly final class ProductService implements ProductServiceContract
         float $newPriceMin,
         float $newPriceMax,
         string $changedAt,
+        ?string $currency = ProductServiceContract::DEFAULT_CURRENCY,
     ): void {
-        $lastPrice = $this->getLastPrice($productId);
+        $currency ??= ProductServiceContract::DEFAULT_CURRENCY;
+
+        $lastPrice = $this->getLastPrice($productId, $currency);
 
         if (
             null === $lastPrice ||
@@ -47,6 +51,7 @@ readonly final class ProductService implements ProductServiceContract
                 'price_min' => $newPriceMin,
                 'price_max' => $newPriceMax,
                 'changed_at' => $changedAt,
+                'currency' => $currency,
             ]);
         }
     }
@@ -58,10 +63,11 @@ readonly final class ProductService implements ProductServiceContract
         return $signature === hash_hmac('sha256', $payload, $api->webhook_secret);
     }
 
-    private function getLastPrice(string $id): ?ProductPrice
+    private function getLastPrice(string $id, string $currency = ProductServiceContract::DEFAULT_CURRENCY): ?ProductPrice
     {
         return ProductPrice::query()
             ->where('product_id', $id)
+            ->where('currency', $currency)
             ->orderBy('changed_at', 'DESC')
             ->first();
     }

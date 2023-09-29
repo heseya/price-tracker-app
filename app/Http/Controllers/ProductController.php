@@ -20,9 +20,9 @@ class ProductController extends Controller
     ) {
     }
 
-    public function show(string $product_id): JsonResource
+    public function show(string $product_id, string $currency = ProductServiceContract::DEFAULT_CURRENCY): JsonResource
     {
-        $price = $this->productService->findCheapestPrice($product_id);
+        $price = $this->productService->findCheapestPrice($product_id, $currency);
 
         return ProductPriceResource::make($price);
     }
@@ -46,6 +46,7 @@ class ProductController extends Controller
             $request->input('data.new_price_min'),
             $request->input('data.new_price_max'),
             $request->input('data.updated_at'),
+            $request->input('data.currency'),
         );
 
         return Response::json(null, ResponseAlias::HTTP_NO_CONTENT);
