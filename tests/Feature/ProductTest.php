@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Models\ProductPrice;
+use App\Services\Contracts\ProductServiceContract;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -19,11 +20,12 @@ class ProductTest extends TestCase
     public function testNoPrices(): void
     {
         $this
-            ->json('GET', '/products/'.self::PRODUCT_ID)
+            ->json('GET', '/products/' . self::PRODUCT_ID)
             ->assertJsonFragment([
                 'price_min' => null,
                 'price_max' => null,
                 'changed_at' => null,
+                'currency' => null,
             ]);
     }
 
@@ -32,11 +34,12 @@ class ProductTest extends TestCase
         $this->createPrice(10, Carbon::now()->subDay()); // current price
         $this->createPrice(5, Carbon::now()->subDays(40)); // more than 40 day
         $this
-            ->json('GET', '/products/'.self::PRODUCT_ID)
+            ->json('GET', '/products/' . self::PRODUCT_ID)
             ->assertJsonFragment([
                 'price_min' => null,
                 'price_max' => null,
                 'changed_at' => null,
+                'currency' => null,
             ]);
     }
 
@@ -48,10 +51,11 @@ class ProductTest extends TestCase
         $this->createPrice(5, Carbon::now()->subDays(40)); // more than 30 day
         $this->createPrice(5, null, Str::uuid()->toString()); // other product
         $this
-            ->json('GET', '/products/'.self::PRODUCT_ID)
+            ->json('GET', '/products/' . self::PRODUCT_ID)
             ->assertJsonFragment([
                 'price_min' => 10.0,
                 'price_max' => 10.0,
+                'currency' => ProductServiceContract::DEFAULT_CURRENCY,
             ]);
     }
 
