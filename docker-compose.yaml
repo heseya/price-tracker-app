@@ -35,3 +35,4 @@ services:
     restart: unless-stopped
     environment:
       - ADMINER_DEFAULT_SERVER=mysql_service
+
