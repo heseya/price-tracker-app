@@ -1,0 +1,4 @@
+FROM escolasoft/php:8.2-heseya
+
+COPY . ./
+RUN composer i
