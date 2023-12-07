@@ -27,6 +27,13 @@ class ProductController extends Controller
         return ProductPriceResource::make($price);
     }
 
+    public function index(Request $request, string $currency = ProductServiceContract::DEFAULT_CURRENCY): JsonResource
+    {
+        $prices = $this->productService->findCheapestPrices($request->input('product_ids', []), $currency);
+
+        return ProductPriceResource::collection($prices);
+    }
+
     public function update(Request $request): JsonResponse
     {
         if (
@@ -41,13 +48,22 @@ class ProductController extends Controller
             throw new ApiAuthenticationException();
         }
 
-        $this->productService->update(
-            $request->input('data.id'),
-            $request->input('data.new_price_min'),
-            $request->input('data.new_price_max'),
-            $request->input('data.updated_at'),
-            $request->input('data.currency'),
-        );
+        if ($request->input('data.new_price_min') || $request->input('data.new_price_max')) {
+            $this->productService->update(
+                $request->input('data.id'),
+                $request->input('data.new_price_min'),
+                $request->input('data.new_price_max'),
+                $request->input('data.updated_at'),
+                $request->input('data.currency'),
+            );
+        } else {
+            $this->productService->updatePrices(
+                $request->input('data.id'),
+                $request->input('data.prices_min_new'),
+                $request->input('data.prices_max_new'),
+                $request->input('data.updated_at')
+            );
+        }
 
         return Response::json(null, ResponseAlias::HTTP_NO_CONTENT);
     }

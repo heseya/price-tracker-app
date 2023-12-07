@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Api;
 use App\Models\ProductPrice;
 use App\Services\Contracts\ProductServiceContract;
+use Illuminate\Support\Arr;
 
 readonly final class ProductService implements ProductServiceContract
 {
@@ -53,6 +54,14 @@ readonly final class ProductService implements ProductServiceContract
                 'changed_at' => $changedAt,
                 'currency' => $currency,
             ]);
+        }
+    }
+
+    public function updatePrices(string $productId, array $newPricesMin, array $newPricesMax, string $changedAt): void
+    {
+        foreach ($newPricesMin as $newPriceMin) {
+            $newPriceMax = Arr::first($newPricesMax, fn (array $priceMax) => $priceMax['currency'] === $newPriceMin['currency']);
+            $this->update($productId, (float) $newPriceMin['gross'], (float) $newPriceMax['gross'], $changedAt, $newPriceMin['currency']);
         }
     }
 

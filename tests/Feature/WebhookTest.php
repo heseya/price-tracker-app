@@ -88,4 +88,176 @@ class WebhookTest extends TestCase
             ->assertDatabaseCount('product_prices', 1)
             ->assertDatabaseHas('product_prices', ['id' => $price->getKey()]);
     }
+
+    public function testUpdatePricesNew(): void
+    {
+        $now = Carbon::now()->toIso8601String();
+
+        $currency = ProductServiceContract::DEFAULT_CURRENCY;
+        $currency2 = 'GBP';
+
+        $this
+            ->json('POST', '/webhooks', [
+                'api_url' => $this->api->url,
+                'event' => 'ProductPriceUpdated',
+                'data_type' => 'ProductPrices',
+                'data' => [
+                    'id' => self::PRODUCT_ID,
+                    'prices_min_old' => [
+                        [
+                            'net' => '5.00',
+                            'gross' => '5.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '2.00',
+                            'gross' => '2.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'prices_max_old' => [
+                        [
+                            'net' => '10.00',
+                            'gross' => '10.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '5.00',
+                            'gross' => '5.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'prices_min_new' => [
+                        [
+                            'net' => '10.00',
+                            'gross' => '10.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '8.00',
+                            'gross' => '8.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'prices_max_new' => [
+                        [
+                            'net' => '20.00',
+                            'gross' => '20.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '18.00',
+                            'gross' => '18.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'updated_at' => $now,
+                ],
+            ], ['Signature' => $this->api->webhook_secret])
+            ->assertNoContent();
+
+        $this->assertDatabaseHas('product_prices', [
+            'product_id' => self::PRODUCT_ID,
+            'price_min' => 10.0,
+            'price_max' => 20.0,
+            'changed_at' => $now,
+            'currency' => $currency,
+        ]);
+
+        $this->assertDatabaseHas('product_prices', [
+            'product_id' => self::PRODUCT_ID,
+            'price_min' => 8.0,
+            'price_max' => 18.0,
+            'changed_at' => $now,
+            'currency' => $currency2,
+        ]);
+    }
+
+    public function testUpdatePricesNewSamePrice(): void
+    {
+        $now = Carbon::now()->toIso8601String();
+        $currency = ProductServiceContract::DEFAULT_CURRENCY;
+        $currency2 = 'GBP';
+
+        $price1 = ProductPrice::query()->create([
+            'product_id' => self::PRODUCT_ID,
+            'price_min' => 10.0,
+            'price_max' => 20.0,
+            'changed_at' => Carbon::now()->toIso8601String(),
+            'currency' => $currency,
+        ]);
+
+        $price2 = ProductPrice::query()->create([
+            'product_id' => self::PRODUCT_ID,
+            'price_min' => 8.0,
+            'price_max' => 18.0,
+            'changed_at' => Carbon::now()->toIso8601String(),
+            'currency' => $currency2,
+        ]);
+
+        $this
+            ->json('POST', '/webhooks', [
+                'api_url' => $this->api->url,
+                'event' => 'ProductPriceUpdated',
+                'data_type' => 'ProductPrices',
+                'data' => [
+                    'id' => self::PRODUCT_ID,
+                    'prices_min_old' => [
+                        [
+                            'net' => '5.00',
+                            'gross' => '5.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '2.00',
+                            'gross' => '2.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'prices_max_old' => [
+                        [
+                            'net' => '10.00',
+                            'gross' => '10.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '5.00',
+                            'gross' => '5.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'prices_min_new' => [
+                        [
+                            'net' => '10.00',
+                            'gross' => '10.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '8.00',
+                            'gross' => '8.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'prices_max_new' => [
+                        [
+                            'net' => '20.00',
+                            'gross' => '20.00',
+                            'currency' => $currency,
+                        ],
+                        [
+                            'net' => '18.00',
+                            'gross' => '18.00',
+                            'currency' => $currency2,
+                        ],
+                    ],
+                    'updated_at' => $now,
+                ],
+            ], ['Signature' => $this->api->webhook_secret])
+            ->assertNoContent();
+
+        $this
+            ->assertDatabaseCount('product_prices', 2)
+            ->assertDatabaseHas('product_prices', ['id' => $price1->getKey()])
+            ->assertDatabaseHas('product_prices', ['id' => $price2->getKey()]);
+    }
 }
