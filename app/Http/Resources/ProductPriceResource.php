@@ -14,6 +14,7 @@ final class ProductPriceResource extends JsonResource
     {
         return [
             'id' => $this->resource?->getKey() ?? null,
+            'product_id' => $this->resource?->product_id ?? null,
             'price_min' => $this->resource?->price_min ?? null,
             'price_max' => $this->resource?->price_max ?? null,
             'changed_at' => $this->resource?->changed_at ?? null,

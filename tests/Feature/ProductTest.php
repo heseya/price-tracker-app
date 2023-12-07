@@ -76,6 +76,7 @@ class ProductTest extends TestCase
                 'price_min' => 10.0,
                 'price_max' => 10.0,
                 'currency' => ProductServiceContract::DEFAULT_CURRENCY,
+                'product_id' => self::PRODUCT_ID,
             ]);
     }
 
@@ -98,11 +99,13 @@ class ProductTest extends TestCase
                 'price_min' => 10.0,
                 'price_max' => 10.0,
                 'currency' => ProductServiceContract::DEFAULT_CURRENCY,
+                'product_id' => self::PRODUCT_ID,
             ])
             ->assertJsonFragment([
                 'price_min' => 20.0,
                 'price_max' => 20.0,
                 'currency' => ProductServiceContract::DEFAULT_CURRENCY,
+                'product_id' => $productId,
             ]);
     }
 
@@ -131,11 +134,13 @@ class ProductTest extends TestCase
                 'price_min' => 10.0,
                 'price_max' => 10.0,
                 'currency' => $currency,
+                'product_id' => self::PRODUCT_ID,
             ])
             ->assertJsonFragment([
                 'price_min' => 20.0,
                 'price_max' => 20.0,
                 'currency' => $currency,
+                'product_id' => $productId,
             ]);
     }
 
