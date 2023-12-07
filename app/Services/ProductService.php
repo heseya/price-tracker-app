@@ -8,6 +8,7 @@ use App\Models\Api;
 use App\Models\ProductPrice;
 use App\Services\Contracts\ProductServiceContract;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 
 readonly final class ProductService implements ProductServiceContract
 {
@@ -29,6 +30,20 @@ readonly final class ProductService implements ProductServiceContract
             ->first();
 
         return $price;
+    }
+
+    public function findCheapestPrices(array $productIds, string $currency = self::DEFAULT_CURRENCY): Collection
+    {
+        $prices = collect([]);
+
+        foreach ($productIds as $productId) {
+            $price = $this->findCheapestPrice($productId, $currency);
+            if ($price) {
+                $prices->push($this->findCheapestPrice($productId, $currency));
+            }
+        }
+
+        return $prices;
     }
 
     public function update(

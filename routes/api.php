@@ -18,5 +18,6 @@ Route::get('/config', [ConfigController::class, 'show'])
 Route::post('/config', [ConfigController::class, 'show'])
     ->middleware('can:configure');
 
+Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product_id}/{currency?}', [ProductController::class, 'show']);
 Route::post('/webhooks', [ProductController::class, 'update']);

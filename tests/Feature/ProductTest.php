@@ -29,6 +29,13 @@ class ProductTest extends TestCase
             ]);
     }
 
+    public function testIndexNoPrices(): void
+    {
+        $this
+            ->json('GET', '/products', ['product_ids' => [self::PRODUCT_ID, Str::uuid()->toString()]])
+            ->assertJsonCount(0, 'data');
+    }
+
     public function testNoPricesOlderThan30Days(): void
     {
         $this->createPrice(10, Carbon::now()->subDay()); // current price
@@ -41,6 +48,19 @@ class ProductTest extends TestCase
                 'changed_at' => null,
                 'currency' => null,
             ]);
+    }
+
+    public function testIndexNoPricesOlderThan30Days(): void
+    {
+        $this->createPrice(10, Carbon::now()->subDay()); // current price
+        $this->createPrice(5, Carbon::now()->subDays(40)); // more than 40 day
+
+        $productId = Str::uuid()->toString();
+        $this->createPrice(20, Carbon::now()->subDay(), $productId); // current price
+        $this->createPrice(15, Carbon::now()->subDays(40), $productId); // more than 40 day
+        $this
+            ->json('GET', '/products', ['product_ids' => [self::PRODUCT_ID, $productId]])
+            ->assertJsonCount(0, 'data');
     }
 
     public function testCheapestPrice(): void
@@ -59,13 +79,78 @@ class ProductTest extends TestCase
             ]);
     }
 
-    private function createPrice(float $price, ?Carbon $changed_at = null, string $id = self::PRODUCT_ID): ProductPrice
+    public function testIndexCheapestPrices(): void
     {
+        $this->createPrice(20, Carbon::now()); // current
+        $this->createPrice(10, Carbon::now()->subDay()); // lowest
+        $this->createPrice(30, Carbon::now()->subDay());
+        $this->createPrice(5, Carbon::now()->subDays(40)); // more than 30 day
+
+        $productId = Str::uuid()->toString();
+        $this->createPrice(50, Carbon::now(), $productId); // current
+        $this->createPrice(20, Carbon::now()->subDay(), $productId); // lowest
+        $this->createPrice(30, Carbon::now()->subDays(2), $productId);
+        $this->createPrice(10, Carbon::now()->subDays(40), $productId); // more than 30 day
+        $this
+            ->json('GET', '/products/', ['product_ids' => [self::PRODUCT_ID, $productId]])
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment([
+                'price_min' => 10.0,
+                'price_max' => 10.0,
+                'currency' => ProductServiceContract::DEFAULT_CURRENCY,
+            ])
+            ->assertJsonFragment([
+                'price_min' => 20.0,
+                'price_max' => 20.0,
+                'currency' => ProductServiceContract::DEFAULT_CURRENCY,
+            ]);
+    }
+
+    public function testIndexCheapestPricesCurrency(): void
+    {
+        $currency = 'GBP';
+        $this->createPrice(20, Carbon::now(), currency: $currency); // current
+        $this->createPrice(10, Carbon::now()->subDay(), currency: $currency); // lowest
+        $this->createPrice(30, Carbon::now()->subDay(), currency: $currency);
+        $this->createPrice(5, Carbon::now()->subDays(40), currency: $currency); // more than 30 day
+
+        $productId = Str::uuid()->toString();
+        $this->createPrice(50, Carbon::now(), $productId, $currency); // current
+        $this->createPrice(20, Carbon::now()->subDay(), $productId, $currency); // lowest
+        $this->createPrice(30, Carbon::now()->subDays(2), $productId, $currency);
+        $this->createPrice(10, Carbon::now()->subDays(40), $productId, $currency); // more than 30 day
+
+        $this
+            ->json('GET', '/products/', ['product_ids' => [self::PRODUCT_ID, $productId]])
+            ->assertJsonCount(0, 'data');
+
+        $this
+            ->json('GET', '/products/', ['product_ids' => [self::PRODUCT_ID, $productId], 'currency' => $currency])
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment([
+                'price_min' => 10.0,
+                'price_max' => 10.0,
+                'currency' => $currency,
+            ])
+            ->assertJsonFragment([
+                'price_min' => 20.0,
+                'price_max' => 20.0,
+                'currency' => $currency,
+            ]);
+    }
+
+    private function createPrice(
+        float $price,
+        ?Carbon $changed_at = null,
+        string $id = self::PRODUCT_ID,
+        string $currency = ProductServiceContract::DEFAULT_CURRENCY
+    ): ProductPrice {
         return ProductPrice::query()->create([
             'product_id' => $id,
             'price_min' => $price,
             'price_max' => $price,
             'changed_at' => $changed_at ?? Carbon::now(),
+            'currency' => $currency,
         ]);
     }
 }

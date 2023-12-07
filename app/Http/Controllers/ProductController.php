@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Exceptions\ApiAuthenticationException;
+use App\Http\Requests\ProductIndexRequest;
 use App\Http\Resources\ProductPriceResource;
 use App\Services\Contracts\ProductServiceContract;
 use Illuminate\Http\JsonResponse;
@@ -27,9 +28,12 @@ class ProductController extends Controller
         return ProductPriceResource::make($price);
     }
 
-    public function index(Request $request, string $currency = ProductServiceContract::DEFAULT_CURRENCY): JsonResource
+    public function index(ProductIndexRequest $request): JsonResource
     {
-        $prices = $this->productService->findCheapestPrices($request->input('product_ids', []), $currency);
+        $prices = $this->productService->findCheapestPrices(
+            $request->input('product_ids', []),
+            $request->input('currency', ProductServiceContract::DEFAULT_CURRENCY)
+        );
 
         return ProductPriceResource::collection($prices);
     }
