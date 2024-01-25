@@ -12,6 +12,7 @@ interface ProductServiceContract
     public const DEFAULT_CURRENCY = 'PLN';
 
     public function findCheapestPrice(string $productId, string $currency = self::DEFAULT_CURRENCY): ?ProductPrice;
+
     public function findCheapestPrices(array $productIds, string $currency = self::DEFAULT_CURRENCY): Collection;
 
     public function update(

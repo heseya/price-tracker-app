@@ -2,13 +2,6 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Str;
-
-$appUrl = env('APP_URL', 'http://localhost');
-$appUrl = Str::endsWith($appUrl, '/')
-    ? Str::substr($appUrl, 0, Str::length($appUrl) - 1)
-    : $appUrl;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -22,6 +15,7 @@ return [
     */
 
     'name' => 'Price Tracker',
+
     'author' => 'Heseya',
 
     /*
@@ -61,9 +55,9 @@ return [
     |
     */
 
-    'url' => $appUrl,
+    'url' => rtrim(env('APP_URL', 'http://localhost'), '/'),
 
-    'asset_url' => env('ASSET_URL', null),
+    'asset_url' => env('ASSET_URL'),
 
     /*
     |--------------------------------------------------------------------------
@@ -105,9 +99,7 @@ return [
     */
 
     'providers' => [
-        /*
-         * Laravel Framework Service Providers...
-         */
+        // Laravel Framework Service Providers...
         Illuminate\Auth\AuthServiceProvider::class,
         Illuminate\Broadcasting\BroadcastServiceProvider::class,
         Illuminate\Bus\BusServiceProvider::class,
@@ -125,9 +117,7 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
-        /*
-         * Application Service Providers...
-         */
+        // Application Service Providers...
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         App\Providers\RouteServiceProvider::class,

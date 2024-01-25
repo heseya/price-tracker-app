@@ -15,8 +15,7 @@ class InstallationController extends Controller
 {
     public function __construct(
         readonly private InstallationServiceContract $installationService,
-    ) {
-    }
+    ) {}
 
     public function install(InstallRequest $request): JsonResponse
     {

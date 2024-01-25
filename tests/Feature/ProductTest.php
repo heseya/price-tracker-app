@@ -148,7 +148,7 @@ class ProductTest extends TestCase
         float $price,
         ?Carbon $changed_at = null,
         string $id = self::PRODUCT_ID,
-        string $currency = ProductServiceContract::DEFAULT_CURRENCY
+        string $currency = ProductServiceContract::DEFAULT_CURRENCY,
     ): ProductPrice {
         return ProductPrice::query()->create([
             'product_id' => $id,

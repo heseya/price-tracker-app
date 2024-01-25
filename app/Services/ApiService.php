@@ -130,7 +130,7 @@ final class ApiService implements ApiServiceContract
             $request = $request->withToken($api->integration_token);
         }
 
-        $fullUrl = rtrim($api->url.$url, '/');
+        $fullUrl = rtrim($api->url . $url, '/');
 
         $response = match ($method) {
             'post' => $request->post($fullUrl, $data),
@@ -144,15 +144,15 @@ final class ApiService implements ApiServiceContract
                 throw new ApiServerErrorException('API responded with an Error');
             }
 
-            if (403 === $response->status()) {
+            if ($response->status() === 403) {
                 throw new ApiAuthorizationException('This action is unauthorized by API');
             }
 
-            if (401 !== $response->status()) {
+            if ($response->status() !== 401) {
                 throw new ApiClientErrorException('API responded with an Error');
             }
 
-            if (false === $tryRefreshing) {
+            if ($tryRefreshing === false) {
                 throw new ApiAuthenticationException('Integration token was rejected by API');
             }
 

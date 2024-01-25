@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
-class ApiAuthorizationException extends \Exception
+use Exception;
+use Throwable;
+
+class ApiAuthorizationException extends Exception
 {
     public function __construct(
         string $message = '',
         int $code = 0,
-        ?\Throwable $previous = null
+        ?Throwable $previous = null,
     ) {
         parent::__construct($message, $code, $previous);
     }

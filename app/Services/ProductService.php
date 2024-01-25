@@ -10,26 +10,24 @@ use App\Services\Contracts\ProductServiceContract;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
-readonly final class ProductService implements ProductServiceContract
+final readonly class ProductService implements ProductServiceContract
 {
     public function findCheapestPrice(string $productId, string $currency = ProductServiceContract::DEFAULT_CURRENCY): ?ProductPrice
     {
         $lastPrice = $this->getLastPrice($productId, $currency);
 
-        if (null === $lastPrice) {
+        if ($lastPrice === null) {
             return null;
         }
 
         /** @var ?ProductPrice $price */
-        $price = ProductPrice::query()
+        return ProductPrice::query()
             ->where('product_id', $productId)
             ->where('id', '!=', $lastPrice->getKey())
             ->where('currency', $currency)
             ->whereDate('changed_at', '>=', $lastPrice->changed_at->subDays(30)->startOfDay())
             ->orderBy('price_min')
             ->first();
-
-        return $price;
     }
 
     public function findCheapestPrices(array $productIds, string $currency = self::DEFAULT_CURRENCY): Collection
@@ -58,9 +56,9 @@ readonly final class ProductService implements ProductServiceContract
         $lastPrice = $this->getLastPrice($productId, $currency);
 
         if (
-            null === $lastPrice ||
-            round($lastPrice->price_min, 2) !== round($newPriceMin, 2) ||
-            round($lastPrice->price_max, 2) !== round($newPriceMax, 2)
+            $lastPrice === null
+            || round($lastPrice->price_min, 2) !== round($newPriceMin, 2)
+            || round($lastPrice->price_max, 2) !== round($newPriceMax, 2)
         ) {
             ProductPrice::query()->create([
                 'product_id' => $productId,

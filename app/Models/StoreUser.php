@@ -20,8 +20,7 @@ class StoreUser implements AuthenticatableContract, AuthorizableContract
         public string $name,
         public string $avatar,
         public array $permissions,
-    ) {
-    }
+    ) {}
 
     public function getKeyName(): string
     {

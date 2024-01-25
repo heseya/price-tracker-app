@@ -18,8 +18,7 @@ class ProductController extends Controller
 {
     public function __construct(
         private readonly ProductServiceContract $productService,
-    ) {
-    }
+    ) {}
 
     public function show(string $product_id, string $currency = ProductServiceContract::DEFAULT_CURRENCY): JsonResource
     {
@@ -32,7 +31,7 @@ class ProductController extends Controller
     {
         $prices = $this->productService->findCheapestPrices(
             $request->input('product_ids', []),
-            $request->input('currency', ProductServiceContract::DEFAULT_CURRENCY)
+            $request->input('currency', ProductServiceContract::DEFAULT_CURRENCY),
         );
 
         return ProductPriceResource::collection($prices);
@@ -41,9 +40,9 @@ class ProductController extends Controller
     public function update(Request $request): JsonResponse
     {
         if (
-            'ProductPriceUpdated' !== $request->input('event') ||
-            'ProductPrices' !== $request->input('data_type') ||
-            $this->productService->checkSignature(
+            $request->input('event') !== 'ProductPriceUpdated'
+            || $request->input('data_type') !== 'ProductPrices'
+            || $this->productService->checkSignature(
                 $request->input('api_url'),
                 $request->header('Signature'),
                 $request->getContent(),
@@ -65,7 +64,7 @@ class ProductController extends Controller
                 $request->input('data.id'),
                 $request->input('data.prices_min_new'),
                 $request->input('data.prices_max_new'),
-                $request->input('data.updated_at')
+                $request->input('data.updated_at'),
             );
         }
 

@@ -6,15 +6,20 @@ namespace App\Services;
 
 use App\Models\Api;
 use App\Services\Contracts\InstallationServiceContract;
+use Exception;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Throwable;
 
 final class InstallationService implements InstallationServiceContract
 {
+    /**
+     * @throws RequestException
+     * @throws Exception
+     */
     public function install(
         string $storeUrl,
         string $integrationToken,
@@ -26,24 +31,25 @@ final class InstallationService implements InstallationServiceContract
         try {
             $response = Http::withToken($integrationToken)->get("{$storeUrl}/auth/profile");
         } catch (Throwable) {
-            throw new \Exception('Failed to connect to the API');
+            throw new Exception('Failed to connect to the API');
         }
 
         if ($response->failed()) {
-            throw new \Exception('Failed to verify assigned permissions');
+            throw new Exception('Failed to verify assigned permissions');
         }
 
-        if (null === $response->json('data.url')) {
-            throw new \Exception('Integration token validation failed');
+        if ($response->json('data.url') === null) {
+            throw new Exception('Integration token validation failed');
         }
 
         $permissions = $response->json('data.permissions');
         $requiredPermissions = Collection::make(Config::get('permissions.required'));
 
         if ($requiredPermissions->diff($permissions)->isNotEmpty()) {
-            throw new \Exception('App doesn\'t have all required permissions');
+            throw new Exception('App doesn\'t have all required permissions');
         }
 
+        /** @var Api $api */
         $api = Api::query()->create([
             'url' => $storeUrl,
             'version' => $apiVersion,
@@ -65,12 +71,15 @@ final class InstallationService implements InstallationServiceContract
             ->delete();
     }
 
+    /**
+     * @throws RequestException
+     */
     private function createWebhook(Api $api): void
     {
         $response = Http::withToken($api->integration_token)
-            ->post("$api->url/webhooks", [
-                'name' => 'Price Checker Webhook',
-                'url' => URL::to('/webhooks'),
+            ->post("{$api->url}/webhooks", [
+                'name' => 'Price Tracker Webhook',
+                'url' => Config::get('app.url') . '/webhooks',
                 'secret' => $api->webhook_secret,
                 'with_issuer' => false,
                 'with_hidden' => true,
