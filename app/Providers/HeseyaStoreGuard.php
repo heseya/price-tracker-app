@@ -38,7 +38,7 @@ class HeseyaStoreGuard implements Guard
 
     public function check(): bool
     {
-        return null !== $this->user;
+        return $this->user !== null;
     }
 
     public function guest(): bool
@@ -72,12 +72,12 @@ class HeseyaStoreGuard implements Guard
         $apiUrl = $this->request->get('api');
         $token = $this->getToken();
 
-        if (null !== $apiUrl && (null !== $headerApiUrl && $headerApiUrl !== $apiUrl)) {
+        if ($apiUrl !== null && ($headerApiUrl !== null && $headerApiUrl !== $apiUrl)) {
             return null;
         }
-        $apiUrl = $apiUrl ?? $headerApiUrl;
+        $apiUrl ??= $headerApiUrl;
 
-        if (($apiUrl === $this->apiUrl && $token === $this->token) || (null !== $token && null === $headerApiUrl)) {
+        if (($apiUrl === $this->apiUrl && $token === $this->token) || ($token !== null && $headerApiUrl === null)) {
             return null;
         }
 
@@ -90,7 +90,7 @@ class HeseyaStoreGuard implements Guard
         }
 
         $payload = $this->getTokenPayload();
-        if (null !== $payload && rtrim($apiUrl, '/') !== rtrim($payload['iss'], '/')) {
+        if ($payload !== null && rtrim($apiUrl, '/') !== rtrim($payload['iss'], '/')) {
             throw new InvalidTokenException("Token doesn't match the X-Core-Url API");
         }
 
@@ -114,7 +114,7 @@ class HeseyaStoreGuard implements Guard
     {
         $token = $this->getToken();
 
-        if (null === $token) {
+        if ($token === null) {
             return null;
         }
 
@@ -130,6 +130,6 @@ class HeseyaStoreGuard implements Guard
 
     public function hasUser(): bool
     {
-        return null !== $this->user;
+        return $this->user !== null;
     }
 }

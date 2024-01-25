@@ -13,8 +13,7 @@ class ConfigController extends Controller
 {
     public function __construct(
         private readonly ConfigServiceContract $configService,
-    ) {
-    }
+    ) {}
 
     public function show(Request $request): JsonResponse
     {

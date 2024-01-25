@@ -9,9 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 final class ErrorResource extends JsonResource
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public static $wrap = 'error';
 
     /**

@@ -36,26 +36,6 @@ class ConfigTest extends TestCase
         $this->user = new StoreUser(Str::uuid()->toString(), 'User', '', ['configure']);
     }
 
-//    public function testConfig(): void
-//    {
-//        Http::fake([
-//            "{$this->api->url}/auth/check" => Http::response([
-//                'data' => [
-//                    'id' => $this->user->id,
-//                    'name' => 'Authenticated',
-//                    'avatar' => '',
-//                    'permissions' => [
-//                        'configure',
-//                    ],
-//                ],
-//            ]),
-//        ]);
-//
-//        $this
-//            ->json('GET', '/config')
-//            ->assertOk();
-//    }
-
     public function testConfigUnauthorized(): void
     {
         Http::fake([

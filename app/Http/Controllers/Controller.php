@@ -28,7 +28,7 @@ class Controller extends BaseController
             ->where('url', $payload ? $payload['iss'] : $request->header('X-Core-Url'))
             ->first();
 
-        if (null === $api) {
+        if ($api === null) {
             throw new ApiAuthenticationException('Api not authorized');
         }
 

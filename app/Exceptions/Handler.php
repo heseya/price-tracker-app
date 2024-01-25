@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -75,7 +76,7 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      */
-    public function render($request, \Throwable $e): Response
+    public function render($request, Throwable $e): Response
     {
         $class = $e::class;
 
@@ -90,7 +91,7 @@ class Handler extends ExceptionHandler
                 app('sentry')->captureException($e);
             }
 
-            if (true === config('app.debug')) {
+            if (config('app.debug') === true) {
                 return parent::render($request, $e);
             }
 

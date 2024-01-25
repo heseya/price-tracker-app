@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
-use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\ProductPrice;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 /** @var ProductPrice $resource */
 final class ProductPriceResource extends JsonResource

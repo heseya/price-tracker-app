@@ -30,7 +30,8 @@
     "config": {
         "allow-plugins": {
             "composer/package-versions-deprecated": false,
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "php-http/discovery": true
         },
         "optimize-autoloader": true,
         "preferred-install": "dist",
