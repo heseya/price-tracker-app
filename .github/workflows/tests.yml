@@ -1,0 +1,69 @@
+name: Tests
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: escolasoft/php:8.2-heseya
+    services:
+      mysql:
+        image: mariadb:10.7
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: exporter
+          MYSQL_PASSWORD: secret
+    steps:
+      - name: Instantiate package
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: composer install --no-ansi --no-interaction --no-progress
+
+      - name: Copy env
+        run: cp .env.testing .env
+
+      - name: Generate keys
+        run: php artisan key:generate
+
+      - name: Migrations
+        run: php artisan migrate:fresh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-vendor
+          path: |
+            vendor/
+            .env
+          retention-days: 1
+
+      - name: Run tests
+        run: php -dpcov.enabled=1 -dpcov.exclude="~vendor~" ./vendor/bin/pest --coverage
+
+  style:
+    runs-on: ubuntu-latest
+    container: escolasoft/php:8.2-heseya
+    if: github.ref_name != 'master' && github.ref_name != 'develop'
+    steps:
+      - name: Instantiate package
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: composer install --no-ansi --no-interaction --no-progress
+
+      - name: Copy env
+        run: cp .env.testing .env
+
+      - name: Generate keys
+        run: php artisan key:generate
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: style-vendor
+          path: |
+            vendor/
+            .env
+          retention-days: 1
+
+      - name: Style
+        run: ./vendor/bin/pint --test
