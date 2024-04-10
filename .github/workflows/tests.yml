@@ -9,7 +9,7 @@ jobs:
         image: mariadb:10.7
         env:
           MYSQL_ROOT_PASSWORD: secret
-          MYSQL_DATABASE: exporter
+          MYSQL_DATABASE: database
           MYSQL_PASSWORD: secret
     steps:
       - name: Instantiate package
@@ -42,7 +42,7 @@ jobs:
   style:
     runs-on: ubuntu-latest
     container: escolasoft/php:8.2-heseya
-    if: github.ref_name != 'master' && github.ref_name != 'develop'
+    if: github.ref_name != 'main' && github.ref_name != 'develop'
     steps:
       - name: Instantiate package
         uses: actions/checkout@v2
